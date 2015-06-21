@@ -24,15 +24,14 @@ int send_message(char * message, int sfd){
 
 	if (write(sfd, message, len) != len) {
 
-      	fprintf(stderr, "partial/failed write\n");
+      	fprintf(stderr, "partial/failed write at client\n");
       	exit(EXIT_FAILURE);
 	}
 
 	nread = read(sfd, buf, BUF_SIZE);
 	if (nread == -1) {
-
-      perror("read");
-      exit(EXIT_FAILURE);
+ 	     perror("read");
+      	exit(EXIT_FAILURE);
 	}
 
 	printf("Received %ld bytes: %s\n", (long) nread, buf);

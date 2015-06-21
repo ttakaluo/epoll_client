@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netdb.h> 
 #include <unistd.h>
+#include <errno.h>
 #include "send_message.h"
 
 int main(int argc, char *argv[]){
@@ -22,8 +23,11 @@ int main(int argc, char *argv[]){
 	memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_UNSPEC; //IPv4 and IPv6
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = 0;
+	hints.ai_flags = AI_PASSIVE;
 	hints.ai_protocol = 0;
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
 
 	s = getaddrinfo(argv[1], argv[2], &hints, &result);
 
@@ -40,8 +44,13 @@ int main(int argc, char *argv[]){
 		if (sfd == -1)
 			continue;
 
-		if (connect(sfd, rp -> ai_addr, rp -> ai_addrlen) != -1)
-			break;
+		if (connect(sfd, rp -> ai_addr, rp -> ai_addrlen) == -1){
+
+			fprintf(stderr, "Value of errno: %d\n", errno);
+			fprintf(stderr, "Error occured: %s\n", strerror(errno));
+		}
+		else
+			break; //success
 
 		close(sfd);
 	}
@@ -56,5 +65,5 @@ int main(int argc, char *argv[]){
 
 	send_message(argv[3], sfd);
 
-	exit(EXIT_SUCCESS);
+	return 0;
 }
